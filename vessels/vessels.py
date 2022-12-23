@@ -545,8 +545,7 @@ class VerticalHemiSphericalVessels(VerticalEllipticalVessels):
 
     def top_head_wetted_area(self, value: float) -> float:
         return 0.0 if value < self.tangent_height else pi * self.diameter * (
-                self.top_head_distance - (self.total_height - min(value, self.total_height))
-        )
+                self.top_head_distance - (self.total_height - min(value, self.total_height)))
 
 
 class VerticalConicalVessels(VerticalFlatVessels):
@@ -558,20 +557,8 @@ class VerticalConicalVessels(VerticalFlatVessels):
         self._diameter = input_diameter
         self._length = input_length
 
-    @property
-    def head_distance(self) -> float:
-        return self._head_distance
-
-    @head_distance.setter
-    def head_distance(self, value: float):
-        self._head_distance = value
-
     def bottom_head_liquid_volume(self, value: float) -> float:
-        if value <= 0:
-            return 0.0
-        else:
-            value = self.bottom_head_distance if value > self.bottom_head_distance else value
-            return self.head_liquid_volume_fn(value)
+        return 0.0 if value <= 0 else self.head_liquid_volume_fn(min(value, self.bottom_head_distance))
 
     def top_head_liquid_volume(self, value: float) -> float:
         return 0.0 if value < self.tangent_height else (1 / 12) * pi * self.diameter ** 2 * (
@@ -590,15 +577,11 @@ class VerticalConicalVessels(VerticalFlatVessels):
             return 0.0
         else:
             value = min(value, self._head_distance)
-            r = value * self.diameter / 2 / self.head_distance
+            r = (value / self.head_distance) * self.diameter / 2
             return pi * r * sqrt(value ** 2 + r ** 2)
     
     def head_liquid_volume_fn(self, value: float) -> float:
-        if value <= 0:
-            return 0.0
-        else:
-            r = value * self.diameter / 2 / self.head_distance
-            return 1 / 3 * pi * r ** 2 * value
+        return 0.0 if value <= 0 else 1 / 3 * pi * value * (value * self.diameter / 2 / self.head_distance) ** 2
 
 
 class VerticalFlattedTanks(VerticalFlatVessels):
@@ -827,8 +810,7 @@ class HorizontalConicalVessels(HorizontalFlatVessels):
         elif value < self.diameter / 2:
             return 2 * self.conical_head_volume(value)
         else:
-            value = self.total_height if value > self.total_height else value
-            value = self.total_height - value
+            value = self.total_height - min(value, self.total_height)
             return 2 * (1 / 3 * pi * self.diameter ** 2 / 4 * self.head_distance - self.conical_head_volume(value))
 
     def conical_head_volume(self, value: float) -> float:
@@ -842,12 +824,13 @@ class HorizontalConicalVessels(HorizontalFlatVessels):
         return 0.0 if value <= 0 else 2 * self.horizontal_cone_surface_area(value)
 
     def horizontal_cone_surface_area(self, value: float) -> float:
-        r = self.diameter / 2
-        if value < r:
+        if value <= 0.0:
+            return 0.0
+        elif value < self.diameter / 2:
             return self.horizontal_cone_surface_area_fn(value)
         else:
             sa1 = self.vertical_cone_surface_area(self.head_distance)
-            sa2 = self.horizontal_cone_surface_area_fn(2 * r - value)
+            sa2 = self.horizontal_cone_surface_area_fn(self.diameter - value)
             return sa1 - sa2
 
     def horizontal_cone_surface_area_fn(self, value: float) -> float:
@@ -855,9 +838,13 @@ class HorizontalConicalVessels(HorizontalFlatVessels):
         k = 1 - value / r
         return r * sqrt(r ** 2 + self.head_distance ** 2) * (pi / 2 - asin(k) - k * sqrt(1 - k ** 2))
 
-    def vertical_cone_surface_area(self, value: float = -1) -> float:
-        return 0.0 if value < 0 else pi * (self.diameter / 2) * sqrt(
-            min(value, self.head_distance) ** 2 + self.diameter ** 2 / 4)
+    def vertical_cone_surface_area(self, value: float) -> float:
+        if value <= 0.0:
+            return 0.0
+        else:
+            value = min(value, self._head_distance)
+            r = (value / self.head_distance) * self.diameter / 2
+            return pi * r * sqrt(value ** 2 + r ** 2)
 
 
 class SphericalTanks(Vessels):
@@ -910,7 +897,7 @@ if __name__ == "__main__":
     diameter = 4.0
     length = 9.0
     cHead = 2.0
-    liquid_level = 1.5
+    liquid_level = 1.99
     high_liquid_level = 3
     low_liquid_lever = 1
 
