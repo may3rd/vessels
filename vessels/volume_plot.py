@@ -10,10 +10,11 @@ if __name__ == "__main__":
                    'HorizontalHemiSphericalVessels', 'HorizontalToriSphericalVessels',
                    'HorizontalConicalVessels', 'SphericalTanks']
     module = __import__("vessels")
-    class_ = getattr(module, class_names[0])
+    class_ = getattr(module, class_names[4])
     vessel = class_()
     vessel.diameter = 4
     vessel.length = 9
+#    vessel.head_distance = 2
     vessel.liquid_level = 2
     vessel.high_liquid_level = 3
     vessel.low_liquid_level = 1
@@ -22,6 +23,7 @@ if __name__ == "__main__":
     z = []
     points = 50
 
+    print(vessel.head_distance)
     print(vessel)
 
     for n in range(points + 1):
