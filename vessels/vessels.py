@@ -101,9 +101,9 @@ class Vessels:
         total_volume = self.total_volume
         total_area = self.total_surface_area
         for index in range(n + 1):
-            height.append(index * total_height / n)
-            volume.append(self.liquid_volume(height[-1])/total_volume)
-            wetted_area.append(self.wetted_area(height[-1])/total_area)
+            height.append(index / n)
+            volume.append(self.liquid_volume(height[-1] * total_height )/total_volume)
+            wetted_area.append(self.wetted_area(height[-1] * total_height )/total_area)
         return height, volume, wetted_area
 
     @property
