@@ -14,22 +14,16 @@ if __name__ == "__main__":
     vessel = class_()
     vessel.diameter = 4
     vessel.length = 9
-#    vessel.head_distance = 2
-    vessel.liquid_level = 2
+    vessel.head_distance = 2
+    vessel.liquid_level = 1.5
     vessel.high_liquid_level = 3
     vessel.low_liquid_level = 1
-    x = []
-    y = []
-    z = []
     points = 50
 
     print(vessel.head_distance)
     print(vessel)
 
-    for n in range(points + 1):
-        x.append(n * vessel.total_height / points)
-        y.append(vessel.liquid_volume(x[-1])/vessel.total_volume)
-        z.append(vessel.wetted_area(x[-1])/vessel.total_surface_area)
+    x, y, z = vessel.create_table(points)
 
     pylab.xlim(0, vessel.total_height)
     pylab.ylim(0, 1)
