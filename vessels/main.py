@@ -2,7 +2,7 @@
 
 """
 
-import vessels
+# import vessels
 
 
 def select_vessel_orientation():
@@ -63,5 +63,3 @@ if __name__ == '__main__':
         class_ = getattr(module, 'SphericalTanks')
         vessel = class_()
         print(vessel)
-
-
