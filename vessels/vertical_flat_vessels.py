@@ -1,4 +1,4 @@
-from .Vessel import Vessels
+from .vessels import Vessels
 from math import pi
 
 class VerticalFlatVessels(Vessels):
