@@ -1,5 +1,4 @@
-from vessels import VerticalFlatVessels, VerticalToriSphericalVessels, VerticalEllipticalVessels, VerticalHemiSphericalVessels, VerticalConicalVessels, VerticalFlattedTanks, VerticalToriSphericalTanks, VerticalEllipticalTanks, VerticalHemiSphericalTanks, VerticalConicalTanks, HorizontalFlatVessels, HorizontalToriSphericalVessels, HorizontalEllipticalVessels, HorizontalHemiSphericalVessels, HorizontalConicalVessels, SphericalTanks
-
+from vessels import *
 
 if __name__ == "__main__":
     diameter = 4.0

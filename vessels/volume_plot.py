@@ -9,7 +9,7 @@ if __name__ == "__main__":
                    'HorizontalFlatVessels', 'HorizontalEllipticalVessels',
                    'HorizontalHemiSphericalVessels', 'HorizontalToriSphericalVessels',
                    'HorizontalConicalVessels', 'SphericalTanks']
-    module = __import__("vessels")
+    module = __import__("_VESSEL")
     class_ = getattr(module, class_names[0])
     vessel = class_()
     vessel.diameter = 4
