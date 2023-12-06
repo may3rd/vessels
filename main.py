@@ -25,7 +25,7 @@ if __name__ == "__main__":
                HorizontalConicalVessels(diameter, length, cHead),  # 14 - horizontal cone vessel
                SphericalTanks(diameter)]  # 15 - spherical tank
 
-    vessel = vessels[4]
+    vessel = vessels[5]
     vessel.high_liquid_level = high_liquid_level
     vessel.low_liquid_level = low_liquid_lever
     vessel.liquid_level = liquid_level

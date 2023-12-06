@@ -1,4 +1,4 @@
-from vertical_flat_vessels import VerticalFlatVessels
+from .vertical_flat_vessels import VerticalFlatVessels
 
 class VerticalFlattedTanks(VerticalFlatVessels):
     vessels_type = 'Vertical Flat Tanks'
