@@ -1,13 +1,13 @@
 from .horizontal_flat_vessels import HorizontalFlatVessels
 from .vertical_torispherical_vessels import VerticalToriSphericalVessels
-from math import pi, sqrt, acos, asin, acosh
+from .constants import *
 import scipy.integrate as integrate
 
 
 class HorizontalToriSphericalVessels(HorizontalFlatVessels, VerticalToriSphericalVessels):
     vessels_type = 'Horizontal ToriSpherical Vessels'
 
-    def __init__(self, input_diameter: float = 3, input_length: float = 9, fd: float = 1.0, fk: float = 0.06) -> None:
+    def __init__(self, input_diameter: float = 3, input_length: float = 9, fd: float = FD_TORI, fk: float = FK_TORI) -> None:
         super().__init__(input_diameter, input_length)
         self._fd: float = fd
         self._fk: float = fk

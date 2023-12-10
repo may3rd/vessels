@@ -1,10 +1,10 @@
 from .vertical_torispherical_vessels import VerticalToriSphericalVessels
-from math import pi
+from .constants import *
 
 class VerticalToriSphericalTanks(VerticalToriSphericalVessels):
     vessels_type = 'Vertical ToriSpherical Tanks'
 
-    def __init__(self, input_diameter: float = 3, input_length: float = 9, fd: float = 1.0, fk: float = 0.06) -> None:
+    def __init__(self, input_diameter: float = 3, input_length: float = 9, fd: float = FD_TORI, fk: float = FK_TORI) -> None:
         super().__init__(input_diameter, input_length, fd, fk)
 
     @property

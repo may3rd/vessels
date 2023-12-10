@@ -1,11 +1,11 @@
 from .vertical_torispherical_vessels import VerticalToriSphericalVessels
-
+from .constants import *
 
 class VerticalEllipticalVessels(VerticalToriSphericalVessels):
     vessels_type = 'Vertical Elliptical Vessels'
 
     def __init__(self, input_diameter: float = 3, input_length: float = 9,
-                 fd: float = 0.9045, fk: float = 0.1727) -> None:
+                 fd: float = FD_ELLIP, fk: float = FK_ELLIP) -> None:
         super().__init__(input_diameter, input_length, fd, fk)
 
     @property

@@ -1,5 +1,5 @@
 from .horizontal_flat_vessels import HorizontalFlatVessels
-from math import pi, sqrt, acos, asin, acosh
+from math import pi, sqrt, asin, acosh
 
 class HorizontalConicalVessels(HorizontalFlatVessels):
     vessels_type = 'Horizontal Conical Vessels'

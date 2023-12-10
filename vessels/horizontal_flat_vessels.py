@@ -1,6 +1,5 @@
 from .vessels import Vessels
-from math import pi, sqrt, acos, asin, acosh
-import scipy.integrate as integrate
+from math import pi, sqrt, acos
 
 class HorizontalFlatVessels(Vessels):
     vessels_type = 'Horizontal Flat Vessels'

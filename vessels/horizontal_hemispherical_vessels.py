@@ -1,5 +1,5 @@
 from .horizontal_elliptical_vessels import HorizontalEllipticalVessels
-from math import pi
+from .constants import *
 
 class HorizontalHemiSphericalVessels(HorizontalEllipticalVessels):
     vessels_type = 'Horizontal HemiSpherical Vessels'

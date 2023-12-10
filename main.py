@@ -1,10 +1,10 @@
 from vessels import *
 
 if __name__ == "__main__":
-    diameter = 4.0
-    length = 9.0
+    diameter = 4.5
+    length = 12.0
     cHead = 2.0
-    liquid_level = 1.99
+    liquid_level = 1.3333 + 4.5/4.0
     high_liquid_level = 3
     low_liquid_lever = 1
 
@@ -25,10 +25,11 @@ if __name__ == "__main__":
                HorizontalConicalVessels(diameter, length, cHead),  # 14 - horizontal cone vessel
                SphericalTanks(diameter)]  # 15 - spherical tank
 
-    vessel = vessels[5]
+    vessel = vessels[2]
     vessel.high_liquid_level = high_liquid_level
     vessel.low_liquid_level = low_liquid_lever
     vessel.liquid_level = liquid_level
     vessel.overflow_flag = True
     print(vessel)
     
+    #hh, vv, ww = vessel.create_table(50)
