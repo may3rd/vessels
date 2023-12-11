@@ -128,8 +128,12 @@ parsec = au / arcsec
 # pressure in pascal
 atm = atmosphere = 101325.0
 bar = 1e5
+kpa = 1e3
+mpa = 1e6
 torr = mmHg = atm / 760
 inchHg = mmHg * inch * 1000
+mmH2O = atm / 10332.274527999
+inchH2O = mmH2O * inch * 1000
 psi = pound * g / (inch ** 2)
 
 atm_inv = atmosphere_inv = 1.0 / atm
