@@ -5,6 +5,38 @@ export interface Point {
     y: number;
 }
 
+export function pointsToPath(
+    points: Point[],
+    toSvgY: (value: number) => number
+): string {
+    if (!points.length) return "";
+    return points
+        .map((point, index) => {
+            const command = index === 0 ? "M" : "L";
+            return `${command} ${point.x} ${toSvgY(point.y)}`;
+        })
+        .join(" ");
+}
+
+export function ellipseProfilePoints(
+    radius: number,
+    height: number,
+    steps: number = 60
+): Point[] {
+    if (radius <= 0 || height <= 0 || steps < 2) {
+        return [];
+    }
+
+    const points: Point[] = [];
+    for (let i = 0; i < steps; i++) {
+        const theta = (i / (steps - 1)) * Math.PI; // 0..pi
+        const x = radius * Math.cos(theta);
+        const y = height - height * Math.sin(theta);
+        points.push({ x, y });
+    }
+    return points;
+}
+
 export function toRad(deg: number): number {
     return (deg * Math.PI) / 180;
 }
@@ -24,7 +56,7 @@ export function arcPoints(
     if (radius <= 0) return [];
     if (steps < 2) steps = 2;
 
-    let delta = endDeg - startDeg;
+    const delta = endDeg - startDeg;
     if (Math.abs(delta) > 180) {
         if (delta > 0) startDeg += 360;
         else endDeg += 360;

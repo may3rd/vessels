@@ -5,6 +5,7 @@ import {
     LevelMarker,
     Defs,
 } from "./utils";
+import { ellipseProfilePoints, pointsToPath } from "./geometry";
 
 interface Props {
     vessel: VerticalHemisphericalVessel;
@@ -15,36 +16,45 @@ export const VerticalHemisphericalVesselDiagram: React.FC<Props> = ({
 }) => {
     const { diameter, length } = vessel;
     const bottomHeadDistance = vessel.bottomHeadHeight;
-    const topHeadDistance = vessel.topHeadHeight;
+    const totalHeight = vessel.totalHeight;
+    const radius = diameter / 2;
+    const shellTop = bottomHeadDistance + length;
 
-    const viewBoxX = -diameter / 2 - 2.0;
-    const viewBoxY = -bottomHeadDistance - 1.0;
-    const viewBoxWidth = diameter + 4.5;
-    const viewBoxHeight = length + bottomHeadDistance + topHeadDistance + 2.5;
+    const paddingX = 2.5;
+    const paddingY = 1.5;
+    const minX = -radius - paddingX;
+    const minY = -totalHeight - paddingY;
+    const width = diameter + 2 * paddingX;
+    const height = totalHeight + 2 * paddingY;
 
-    const bottomHeadPath = `M ${-diameter / 2} 0 A ${diameter / 2} ${diameter / 2} 0 0 0 ${diameter / 2} 0`;
-    const topHeadPath = `M ${diameter / 2} ${length} A ${diameter / 2} ${diameter / 2} 0 0 0 ${-diameter / 2} ${length}`;
+    const toSvgY = (value: number) => -value;
+    const clampLevel = (value: number) =>
+        Math.max(0, Math.min(value, totalHeight));
 
-    const vesselPath = `
-    ${bottomHeadPath}
-    L ${diameter / 2} ${length}
-    ${topHeadPath.replace("M", "L")}
-    L ${-diameter / 2} 0
-    Z
-  `;
+    const bottomHeadPoints = ellipseProfilePoints(radius, bottomHeadDistance);
+    const topHeadPoints = bottomHeadPoints
+        .map((point) => ({
+            x: point.x,
+            y: totalHeight - point.y,
+        }))
+        .reverse();
 
-    const liquidY = Math.min(
-        Math.max(vessel.liquidLevel, 0),
-        vessel.totalHeight
-    );
-    const liquidHeight = liquidY;
+    const bottomHeadPath = pointsToPath(bottomHeadPoints, toSvgY);
+    const topHeadPath = pointsToPath(topHeadPoints, toSvgY);
+
+    const vesselPath = [
+        bottomHeadPath,
+        `L ${-radius} ${toSvgY(shellTop)}`,
+        topHeadPath.replace(/^M/, "L"),
+        `L ${radius} ${toSvgY(bottomHeadDistance)}`,
+        "Z",
+    ].join(" ");
 
     return (
         <svg
-            viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}`}
-            className="w-full h-full"
-            transform="scale(1, -1)"
-            style={{ overflow: "visible" }}
+            viewBox={`${minX} ${minY} ${width} ${height}`}
+            style={{ width: "100%", height: "100%", maxHeight: "80vh" }}
+            preserveAspectRatio="xMidYMid meet"
         >
             <Defs />
             <defs>
@@ -54,18 +64,18 @@ export const VerticalHemisphericalVesselDiagram: React.FC<Props> = ({
             </defs>
 
             <rect
-                x={-diameter / 2}
-                y={-bottomHeadDistance}
+                x={-radius}
+                y={toSvgY(clampLevel(vessel.liquidLevel))}
                 width={diameter}
-                height={liquidHeight}
+                height={clampLevel(vessel.liquidLevel)}
                 fill="lightblue"
                 fillOpacity={0.5}
                 clipPath="url(#hemiVesselClip)"
             />
 
             <rect
-                x={-diameter / 2}
-                y={0}
+                x={-radius}
+                y={toSvgY(shellTop)}
                 width={diameter}
                 height={length}
                 fill="none"
@@ -78,55 +88,52 @@ export const VerticalHemisphericalVesselDiagram: React.FC<Props> = ({
 
             <line
                 x1={0}
-                y1={-bottomHeadDistance - 0.5}
+                y1={toSvgY(0) - 0.5}
                 x2={0}
-                y2={length + topHeadDistance + 0.5}
+                y2={toSvgY(totalHeight) + 0.5}
                 stroke="black"
                 strokeWidth={0.02}
                 strokeDasharray="0.2, 0.1"
             />
 
-            <g transform="scale(1, -1)">
-                <DimensionArrow
-                    start={{ x: -diameter / 2, y: bottomHeadDistance + 0.8 }}
-                    end={{ x: diameter / 2, y: bottomHeadDistance + 0.8 }}
-                    text={`D = ${diameter.toFixed(2)} m`}
-                    textOffset={{ x: 0, y: 0.2 }}
-                />
-                <DimensionArrow
-                    start={{ x: diameter / 2 + 1.2, y: 0 }}
-                    end={{ x: diameter / 2 + 1.2, y: -length }}
-                    text={`T-T = ${length.toFixed(2)} m`}
-                    textOffset={{ x: 0.4, y: 0 }}
-                />
-            </g>
+            <DimensionArrow
+                start={{ x: -radius, y: toSvgY(0) + 0.8 }}
+                end={{ x: radius, y: toSvgY(0) + 0.8 }}
+                text={`D = ${diameter.toFixed(2)} m`}
+                textOffset={{ x: 0, y: 0.2 }}
+            />
+            <DimensionArrow
+                start={{ x: radius + 1.2, y: toSvgY(bottomHeadDistance) }}
+                end={{ x: radius + 1.2, y: toSvgY(shellTop) }}
+                text={`T-T = ${length.toFixed(2)} m`}
+                textOffset={{ x: 0.4, y: 0 }}
+                isVertical
+            />
 
-            <g transform="scale(1, -1)">
-                <LevelMarker
-                    y={-(vessel.highLiquidLevel - bottomHeadDistance)}
-                    label="HLL"
-                    value={vessel.highLiquidLevel}
-                    color="green"
-                    xMin={-diameter / 2}
-                    xMax={diameter / 2}
-                />
-                <LevelMarker
-                    y={-(vessel.lowLiquidLevel - bottomHeadDistance)}
-                    label="LLL"
-                    value={vessel.lowLiquidLevel}
-                    color="red"
-                    xMin={-diameter / 2}
-                    xMax={diameter / 2}
-                />
-                <LevelMarker
-                    y={-(vessel.liquidLevel - bottomHeadDistance)}
-                    label="LL"
-                    value={vessel.liquidLevel}
-                    color="blue"
-                    xMin={-diameter / 2}
-                    xMax={diameter / 2}
-                />
-            </g>
+            <LevelMarker
+                y={toSvgY(clampLevel(vessel.highLiquidLevel))}
+                label="HLL"
+                value={vessel.highLiquidLevel}
+                color="green"
+                xMin={-radius}
+                xMax={radius}
+            />
+            <LevelMarker
+                y={toSvgY(clampLevel(vessel.lowLiquidLevel))}
+                label="LLL"
+                value={vessel.lowLiquidLevel}
+                color="red"
+                xMin={-radius}
+                xMax={radius}
+            />
+            <LevelMarker
+                y={toSvgY(clampLevel(vessel.liquidLevel))}
+                label="LL"
+                value={vessel.liquidLevel}
+                color="blue"
+                xMin={-radius}
+                xMax={radius}
+            />
         </svg>
     );
 };
