@@ -16,6 +16,14 @@ from .vertical_torispherical_vessels import VerticalToriSphericalVessels
 from .horizontal_torishperical_vessels import HorizontalToriSphericalVessels
 from .spherical_tanks import SphericalTanks
 
+DIMENSION_COLOR = "#004f9f"
+LEVEL_COLORS = {
+    "HLL": "#2ca02c",
+    "LLL": "#d62728",
+    "LL": "#1f77b4",
+}
+LEVEL_LABEL_STYLE = dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.85)
+
 
 def _arc_points(cx, cy, radius, start_deg, end_deg, steps=30):
     if radius <= 0:
@@ -113,6 +121,133 @@ def _head_distances(vessel):
     bottom = getattr(vessel, "bottom_head_distance", getattr(vessel, "head_distance", 0.0))
     top = getattr(vessel, "top_head_distance", getattr(vessel, "head_distance", 0.0))
     return bottom, top
+
+
+def _add_dimension(ax, start, end, text, text_offset=(0.0, 0.0)):
+    ax.annotate(
+        "",
+        xy=end,
+        xytext=start,
+        arrowprops=dict(arrowstyle="<->", color=DIMENSION_COLOR, linewidth=1.0, shrinkA=0, shrinkB=0),
+    )
+    mid_x = (start[0] + end[0]) / 2 + text_offset[0]
+    mid_y = (start[1] + end[1]) / 2 + text_offset[1]
+    ax.text(
+        mid_x,
+        mid_y,
+        text,
+        color=DIMENSION_COLOR,
+        fontsize=10,
+        ha="center",
+        va="center",
+        bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.9),
+    )
+
+
+def _draw_vertical_dimensions(ax, vessel):
+    bottom_head, _ = _head_distances(vessel)
+    diameter_line_y = -bottom_head - 0.8
+    _add_dimension(
+        ax,
+        (-vessel.diameter / 2, diameter_line_y),
+        (vessel.diameter / 2, diameter_line_y),
+        f"D = {vessel.diameter:.2f} m",
+        text_offset=(0.0, -0.2),
+    )
+    cyl_length = getattr(vessel, "length", 0.0)
+    if cyl_length > 0:
+        x_offset = vessel.diameter / 2 + 1.2
+        _add_dimension(
+            ax,
+            (x_offset, 0.0),
+            (x_offset, cyl_length),
+            f"T-T = {cyl_length:.2f} m",
+            text_offset=(0.4, 0.0),
+        )
+
+
+def _draw_horizontal_dimensions(ax, vessel):
+    head_offset = getattr(vessel, "head_distance", 0.0)
+    diameter_line_x = -head_offset - 1.0
+    _add_dimension(
+        ax,
+        (diameter_line_x, -vessel.diameter / 2),
+        (diameter_line_x, vessel.diameter / 2),
+        f"D = {vessel.diameter:.2f} m",
+        text_offset=(-0.25, 0.0),
+    )
+    length_value = getattr(vessel, "length", 0.0)
+    length_line_y = -vessel.diameter / 2 - 0.9
+    if length_value > 0:
+        _add_dimension(
+            ax,
+            (0.0, length_line_y),
+            (length_value, length_line_y),
+            f"L = {length_value:.2f} m",
+            text_offset=(0.0, -0.2),
+        )
+
+
+def _draw_vertical_level_markers(ax, vessel):
+    bottom_head, _ = _head_distances(vessel)
+    total_height = vessel.total_height
+    min_y = -bottom_head
+    max_y = total_height - bottom_head
+    x_min = -vessel.diameter / 2
+    x_max = vessel.diameter / 2
+    levels = [
+        ("HLL", vessel.high_liquid_level, LEVEL_COLORS["HLL"]),
+        ("LLL", vessel.low_liquid_level, LEVEL_COLORS["LLL"]),
+        ("LL", vessel.liquid_level, LEVEL_COLORS["LL"]),
+    ]
+    for label, value, color in levels:
+        if value is None:
+            continue
+        clamped_value = min(max(value, 0.0), total_height)
+        y_coord = clamped_value - bottom_head
+        y_coord = max(min_y, min(max_y, y_coord))
+        ax.plot([x_min, x_max], [y_coord, y_coord], linestyle="--", color=color, linewidth=1.0)
+        ax.text(
+            x_max + 0.8,
+            y_coord,
+            f"{label} = {value:.2f} m",
+            color=color,
+            fontsize=9,
+            ha="left",
+            va="center",
+            bbox=LEVEL_LABEL_STYLE,
+        )
+
+
+def _draw_horizontal_level_markers(ax, vessel):
+    head_offset = getattr(vessel, "head_distance", 0.0)
+    x_min = -head_offset
+    x_max = vessel.length + head_offset
+    min_y = -vessel.diameter / 2
+    max_y = vessel.diameter / 2
+    total_height = vessel.total_height
+    levels = [
+        ("HLL", vessel.high_liquid_level, LEVEL_COLORS["HLL"]),
+        ("LLL", vessel.low_liquid_level, LEVEL_COLORS["LLL"]),
+        ("LL", vessel.liquid_level, LEVEL_COLORS["LL"]),
+    ]
+    for label, value, color in levels:
+        if value is None:
+            continue
+        clamped_value = min(max(value, 0.0), total_height)
+        y_coord = clamped_value - vessel.diameter / 2
+        y_coord = max(min_y, min(max_y, y_coord))
+        ax.plot([x_min, x_max], [y_coord, y_coord], linestyle="--", color=color, linewidth=1.0)
+        ax.text(
+            x_max + 0.6,
+            y_coord,
+            f"{label} = {value:.2f} m",
+            color=color,
+            fontsize=9,
+            ha="left",
+            va="center",
+            bbox=LEVEL_LABEL_STYLE,
+        )
 
 def _draw_vertical_shell(ax, vessel):
     shell = Rectangle((-vessel.diameter / 2, 0), vessel.diameter, vessel.length, edgecolor='black', facecolor='none')
@@ -281,18 +416,27 @@ def draw_vessel(vessel: Vessels, output_path: str):
         default_heads = _draw_horizontal_flat_heads if is_horizontal else _draw_vertical_flat_heads
         default_heads(ax, vessel)
 
+    if is_horizontal:
+        _draw_horizontal_dimensions(ax, vessel)
+        _draw_horizontal_level_markers(ax, vessel)
+    else:
+        _draw_vertical_dimensions(ax, vessel)
+        _draw_vertical_level_markers(ax, vessel)
+
     if isinstance(vessel, SphericalTanks):
         radius = vessel.diameter / 2
-        ax.set_xlim(-radius - 0.5, radius + 0.5)
-        ax.set_ylim(-0.5, vessel.diameter + 0.5)
+        ax.set_xlim(-radius - 1.5, radius + 1.5)
+        ax.set_ylim(-0.8, vessel.diameter + 1.0)
     elif is_horizontal:
-        ax.set_xlim(-vessel.head_distance - 0.5, vessel.length + vessel.head_distance + 0.5)
-        ax.set_ylim(-vessel.diameter / 2 - 0.5, vessel.diameter / 2 + 0.5)
+        head_offset = getattr(vessel, "head_distance", 0.0)
+        ax.set_xlim(-head_offset - 1.5, vessel.length + head_offset + 1.0)
+        ax.set_ylim(-vessel.diameter / 2 - 1.4, vessel.diameter / 2 + 0.9)
     else:  # Vertical
-        ax.set_xlim(-vessel.diameter / 2 - 1.5, vessel.diameter / 2 + 1.5)
-        ax.set_ylim(-vessel.head_distance - 0.5, vessel.length + vessel.head_distance + 0.5)
+        bottom_head, top_head = _head_distances(vessel)
+        ax.set_xlim(-vessel.diameter / 2 - 2.0, vessel.diameter / 2 + 2.2)
+        ax.set_ylim(-bottom_head - 1.0, vessel.length + top_head + 1.1)
 
     ax.set_title(vessel.vessels_type)
-    ax.grid(True, linestyle='--', alpha=0.6)
+    ax.axis('off')
     plt.savefig(output_path)
     plt.close(fig)

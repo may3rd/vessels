@@ -49,6 +49,6 @@ if __name__ == "__main__":
         vessel.liquid_level = liquid_level
         vessel.overflow_flag = True
         # print(vessel)
-        vessel.draw(f"drawings/vessel_{i:02d}.svg")
+        vessel.draw(f"drawings/vessel_{i:02d}.png")
     
     #hh, vv, ww = vessel.create_table(50)
