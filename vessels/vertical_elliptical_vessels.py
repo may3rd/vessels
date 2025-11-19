@@ -1,5 +1,5 @@
 from .vertical_torispherical_vessels import VerticalToriSphericalVessels
-from .constants import *
+from constants import FD_ELLIP, FK_ELLIP, pi
 
 class VerticalEllipticalVessels(VerticalToriSphericalVessels):
     vessels_type = 'Vertical Elliptical Vessels'
@@ -39,4 +39,6 @@ def elliptical_head_volume(x_radii: float, y_radii: float, z_radii: float, cap_h
     Returns:
         The calculated volume of the partial ellipsoidal cap given the semi-axes height.
     """
+    if z_radii == 0:
+        return 0.0
     return pi * x_radii * y_radii * cap_height ** 2 * (3 * z_radii - cap_height) / (3 * z_radii ** 2)

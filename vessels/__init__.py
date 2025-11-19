@@ -9,7 +9,7 @@ from .vertical_conical_tanks import VerticalConicalTanks
 from .vertical_conical_vessels import VerticalConicalVessels
 from .vertical_elliptical_tanks import VerticalEllipticalTanks
 from .vertical_elliptical_vessels import VerticalEllipticalVessels
-from .vertical_flat_tanks import VerticalFlattedTanks
+from .vertical_flat_tanks import VerticalFlatTanks
 from .vertical_flat_vessels import VerticalFlatVessels
 from .vertical_hemispherical_tanks import VerticalHemiSphericalTanks
 from .vertical_hemispherical_vessels import VerticalHemiSphericalVessels

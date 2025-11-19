@@ -1,14 +1,1 @@
-scipy
-pytest
-pytest-cov
-coveralls
-sympy; python_version>='3'
-fuzzywuzzy
-pint
-pytz
-numpy
-pandas
-IPython
-sphinx
-wheel
-matplotlib
+pytest==9.0.1

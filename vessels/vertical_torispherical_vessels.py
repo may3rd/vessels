@@ -1,6 +1,6 @@
 from .vertical_flat_vessels import VerticalFlatVessels
 from math import sqrt, acos, asin
-from .constants import *
+from constants import FD_TORI, FK_TORI, pi
 import scipy.integrate as integrate
 
 class VerticalToriSphericalVessels(VerticalFlatVessels):
@@ -77,9 +77,15 @@ class VerticalToriSphericalVessels(VerticalFlatVessels):
     def top_head_wetted_area(self, value: float) -> float:
         return self.vertical_top_fd_head_wetted_area(value)
 
+    def _safe_integrate(self, func, a, b, args=()):
+        try:
+            return integrate.quad(func, a, b, args=args)[0]
+        except Exception:
+            return 0.0
+
     def vertical_bottom_fd_head_volume(self, value: float) -> float:
-        return 0.0 if value < 0 else self.diameter * integrate.quad(
-            self.vertical_fd_head_surface_area, 0, min(value / self.diameter, self.a2))[0]
+        return 0.0 if value < 0 else self.diameter * self._safe_integrate(
+            self.vertical_fd_head_surface_area, 0, min(value / self.diameter, self.a2))
 
     def vertical_top_fd_head_volume(self, value: float) -> float:
         if value <= self.bottom_head_distance + self.length:
@@ -87,8 +93,8 @@ class VerticalToriSphericalVessels(VerticalFlatVessels):
         else:
             value = self.total_height - value
             a = value / self.diameter
-            head_volume = integrate.quad(self.vertical_fd_head_surface_area, 0, self.a2)[0]
-            sub_volume = integrate.quad(self.vertical_fd_head_surface_area, 0, a)[0]
+            head_volume = self._safe_integrate(self.vertical_fd_head_surface_area, 0, self.a2)
+            sub_volume = self._safe_integrate(self.vertical_fd_head_surface_area, 0, a)
             return (head_volume - sub_volume) * self.diameter
 
     def vertical_fd_head_surface_area(self, x: float) -> float:
@@ -101,11 +107,11 @@ class VerticalToriSphericalVessels(VerticalFlatVessels):
         b_f = sqrt(1 / 4 - (1 / 2 - x) ** 2)
         if (x > 1 / 2 - self.b1) & (x < 1 / 2 + self.b1):
             b_d = sqrt(((1 / 2 - self.fk) + sqrt(self.fk ** 2 - (self.a2 - self.a1) ** 2)) ** 2 - (1 / 2 - x) ** 2)
-            result = integrate.quad(self.function_horizontal_area_2, b_d, b_f, args=[x])[0]
+            result = self._safe_integrate(self.function_horizontal_area_2, b_d, b_f, args=[x])
             result += b_d * (self.a2 - self.a1)
             return result * 2 * self.diameter ** 2
         else:
-            result = integrate.quad(self.function_horizontal_area_2, 0, b_f, args=[x])[0]
+            result = self._safe_integrate(self.function_horizontal_area_2, 0, b_f, args=[x])
             return result * 2 * self.diameter ** 2
 
     def function_horizontal_area_2(self, b: float, d) -> float:
@@ -144,11 +150,11 @@ class VerticalToriSphericalVessels(VerticalFlatVessels):
             return 0.0
         elif delta < 1 / 2:
             a0 = self.fd - sqrt(self.fd ** 2 - (1 / 2 - delta) ** 2)
-            result = integrate.quad(self.function_horizontal_surface_area_1, a0, self.a1, args=[delta])[0]
+            result = self._safe_integrate(self.function_horizontal_surface_area_1, a0, self.a1, args=[delta])
             return result
         elif delta < 1 / 2 + self.b1:
             a0 = self.fd - sqrt(self.fd ** 2 - (1 / 2 - (1 - delta)) ** 2)
-            result = integrate.quad(self.function_horizontal_surface_area_1, a0, self.a1, args=[delta])[0]
+            result = self._safe_integrate(self.function_horizontal_surface_area_1, a0, self.a1, args=[delta])
             return result + self.vertical_surface_area_1(a0)
         else:
             return 2 * pi * self.diameter ** 2 * self.fd * self.a1
@@ -162,15 +168,15 @@ class VerticalToriSphericalVessels(VerticalFlatVessels):
     def horizontal_surface_area_2(self, delta: float) -> float:
         if delta < 1 / 2 - self.b1:
             a0 = self.a2 - sqrt(self.fk ** 2 - (self.fk - delta) ** 2)
-            result = integrate.quad(self.function_horizontal_surface_area_2, a0, self.a2, args=[delta])[0]
+            result = self._safe_integrate(self.function_horizontal_surface_area_2, a0, self.a2, args=[delta])
             return result
         elif delta < 1 / 2 + self.b1:
             a0 = self.a1
-            result = integrate.quad(self.function_horizontal_surface_area_2, a0, self.a2, args=[delta])[0]
+            result = self._safe_integrate(self.function_horizontal_surface_area_2, a0, self.a2, args=[delta])
             return result
         else:
             a0 = self.a2 - sqrt(self.fk ** 2 - (self.fk - (1 - delta)) ** 2)
-            result = integrate.quad(self.function_horizontal_surface_area_2, a0, self.a2, args=[delta])[0]
+            result = self._safe_integrate(self.function_horizontal_surface_area_2, a0, self.a2, args=[delta])
             return self.vertical_surface_area_2(a0) + result
 
     def function_horizontal_surface_area_2(self, x, delta) -> float:

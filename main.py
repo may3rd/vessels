@@ -1,4 +1,19 @@
-from vessels import *
+from vessels.vertical_flat_vessels import VerticalFlatVessels
+from vessels.vertical_torispherical_vessels import VerticalToriSphericalVessels
+from vessels.vertical_elliptical_vessels import VerticalEllipticalVessels
+from vessels.vertical_hemispherical_vessels import VerticalHemiSphericalVessels
+from vessels.vertical_conical_vessels import VerticalConicalVessels
+from vessels.vertical_flat_tanks import VerticalFlatTanks
+from vessels.vertical_torispherical_tanks import VerticalToriSphericalTanks
+from vessels.vertical_elliptical_tanks import VerticalEllipticalTanks
+from vessels.vertical_hemispherical_tanks import VerticalHemiSphericalTanks
+from vessels.vertical_conical_tanks import VerticalConicalTanks
+from vessels.horizontal_flat_vessels import HorizontalFlatVessels
+from vessels.horizontal_torishperical_vessels import HorizontalToriSphericalVessels
+from vessels.horizontal_elliptical_vessels import HorizontalEllipticalVessels
+from vessels.horizontal_hemispherical_vessels import HorizontalHemiSphericalVessels
+from vessels.horizontal_conical_vessels import HorizontalConicalVessels
+from vessels.spherical_tanks import SphericalTanks
 
 if __name__ == "__main__":
     diameter = 4.5
@@ -14,7 +29,7 @@ if __name__ == "__main__":
         VerticalEllipticalVessels(diameter, length),  # 2 - vertical elli vessel
         VerticalHemiSphericalVessels(diameter, length),  # 3 - vertical hemi vessel
         VerticalConicalVessels(diameter, length, cHead),  # 4 - vertical cone vessel
-        VerticalFlattedTanks(diameter, length),  # 5 - vertical flat tank
+        VerticalFlatTanks(diameter, length),  # 5 - vertical flat tank
         VerticalToriSphericalTanks(diameter, length),  # 6 - vertical tori tank
         VerticalEllipticalTanks(diameter, length),  # 7 - vertical elli tank
         VerticalHemiSphericalTanks(diameter, length),  # 8 - vertical hemi tank
@@ -27,11 +42,13 @@ if __name__ == "__main__":
         SphericalTanks(diameter),  # 15 - spherical tank
     ]
 
-    vessel = vessels_list[2]
-    vessel.high_liquid_level = high_liquid_level
-    vessel.low_liquid_level = low_liquid_lever
-    vessel.liquid_level = liquid_level
-    vessel.overflow_flag = True
-    print(vessel)
+    for i in range(len(vessels_list)):
+        vessel = vessels_list[i]
+        vessel.high_liquid_level = high_liquid_level
+        vessel.low_liquid_level = low_liquid_lever
+        vessel.liquid_level = liquid_level
+        vessel.overflow_flag = True
+        # print(vessel)
+        vessel.draw(f"drawings/vessel_{i:02d}.svg")
     
     #hh, vv, ww = vessel.create_table(50)

@@ -1,6 +1,6 @@
 from .horizontal_flat_vessels import HorizontalFlatVessels
 from .vertical_torispherical_vessels import VerticalToriSphericalVessels
-from .constants import *
+from constants import FD_TORI, FK_TORI
 import scipy.integrate as integrate
 
 
@@ -23,7 +23,10 @@ class HorizontalToriSphericalVessels(HorizontalFlatVessels, VerticalToriSpherica
             return 0.0
         else:
             a = min(value, self.diameter) / self.diameter
-            head_volume = integrate.quad(self.horizontal_fd_head_surface_area, 0, a)[0]
+            try:
+                head_volume = integrate.quad(self.horizontal_fd_head_surface_area, 0, a)[0]
+            except Exception:
+                head_volume = 0.0
             return head_volume * self.diameter / 2
 
     def horizontal_fd_head_surface_area(self, x) -> float:

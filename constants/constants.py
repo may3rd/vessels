@@ -8,6 +8,13 @@ come out.
 
 import math as _math
 
+# ASME constants
+FD_TORI = 1.0
+FK_TORI = 0.06
+
+FD_ELLIP =  0.9045
+FK_ELLIP = 0.1727
+
 # mathematical constants
 pi = _math.pi
 pi_inv = 1.0 / pi

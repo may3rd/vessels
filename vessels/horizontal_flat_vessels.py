@@ -37,6 +37,17 @@ class HorizontalFlatVessels(Vessels):
     def head_surface_area(self) -> float:
         return self.head_wetted_area(self.total_height)
 
+    @property
+    def tangent_height(self) -> float:
+        return 0.0
+
+    @property
+    def tangent_volume(self) -> float:
+        return 0.0
+
+    def head_liquid_volume(self, value: float) -> float:
+        return 0.0
+
     def shell_liquid_volume(self, value: float) -> float:
         if value <= 0:
             return 0.0
@@ -58,4 +69,3 @@ class HorizontalFlatVessels(Vessels):
             theta = 2 * acos(1 - value * 2 / self.diameter)
             return 2 * (theta / 2 * (self.diameter / 2) ** 2 - (self.diameter / 2 - value) * sqrt(
                 value * (self.diameter - value)))
-

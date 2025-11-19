@@ -1,6 +1,11 @@
+from abc import ABC, abstractmethod
 from math import pi, sqrt, acos, asin, acosh
 
-class Vessels:
+# This is a forward declaration, the actual import is at the end of the file
+# to avoid circular dependencies.
+# from .drawing import draw_vessel
+
+class Vessels(ABC):
     """The skeleton class for tank and vessel classes.
     """
     vessels_type: str
@@ -67,9 +72,22 @@ class Vessels:
         total_area = self.total_surface_area
         for index in range(n + 1):
             height.append(index / n)
-            volume.append(self.liquid_volume(height[-1] * total_height)/total_volume)
-            wetted_area.append(self.wetted_area(height[-1] * total_height)/total_area)
+            current_height = height[-1] * total_height
+            if total_volume > 0:
+                volume.append(self.liquid_volume(current_height) / total_volume)
+            else:
+                volume.append(0.0)
+            
+            if total_area > 0:
+                wetted_area.append(self.wetted_area(current_height) / total_area)
+            else:
+                wetted_area.append(0.0)
         return height, volume, wetted_area
+
+    def draw(self, output_path: str):
+        """Draws the vessel and saves it to a file."""
+        from .drawing import draw_vessel
+        draw_vessel(self, output_path)
 
     @property
     def diameter(self) -> float:
@@ -77,6 +95,8 @@ class Vessels:
 
     @diameter.setter
     def diameter(self, value: float):
+        if value <= 0:
+            raise ValueError("Diameter must be positive")
         self._diameter = value
 
     @property
@@ -85,6 +105,8 @@ class Vessels:
 
     @length.setter
     def length(self, value: float):
+        if value <= 0:
+            raise ValueError("Length must be positive")
         self._length = value
 
     @property
@@ -93,6 +115,8 @@ class Vessels:
 
     @high_liquid_level.setter
     def high_liquid_level(self, value: float):
+        if value < 0:
+            raise ValueError("High liquid level must be non-negative")
         self._high_liquid_level = value
 
     @property
@@ -101,6 +125,8 @@ class Vessels:
 
     @low_liquid_level.setter
     def low_liquid_level(self, value: float):
+        if value < 0:
+            raise ValueError("Low liquid level must be non-negative")
         self._low_liquid_level = value
 
     @property
@@ -109,6 +135,8 @@ class Vessels:
 
     @liquid_level.setter
     def liquid_level(self, value: float):
+        if value < 0:
+            raise ValueError("Liquid level must be non-negative")
         self._liquid_level = value
 
     @property
@@ -129,23 +157,29 @@ class Vessels:
 
     @head_distance.setter
     def head_distance(self, value: float):
+        if value < 0:
+            raise ValueError("Head distance must be non-negative")
         self._head_distance = value
 
     @property
+    @abstractmethod
     def total_height(self) -> float:
-        return 0.0
+        pass
 
     @property
+    @abstractmethod
     def tangent_height(self) -> float:
-        return 0.0
+        pass
 
     @property
+    @abstractmethod
     def head_volume(self) -> float:
-        return 0.0
+        pass
 
     @property
+    @abstractmethod
     def shell_volume(self) -> float:
-        return 0.0
+        pass
 
     @property
     def total_volume(self) -> float:
@@ -157,42 +191,50 @@ class Vessels:
 
     @property
     def efficiency_volume(self) -> float:
-        return self.effective_volume / self.total_volume * 100.0
+        return self.effective_volume / self.total_volume * 100.0 if self.total_volume > 0 else 0.0
 
     @property
+    @abstractmethod
     def working_volume(self) -> float:
-        return 0.0
+        pass
 
     @property
+    @abstractmethod
     def tangent_volume(self) -> float:
-        return 0.0
+        pass
 
     @property
+    @abstractmethod
     def head_surface_area(self) -> float:
-        return 0.0
+        pass
 
     @property
+    @abstractmethod
     def shell_surface_area(self) -> float:
-        return 0.0
+        pass
 
     @property
     def total_surface_area(self) -> float:
         return self.shell_surface_area + self.head_surface_area
 
+    @abstractmethod
     def head_liquid_volume(self, value: float) -> float:
-        return 0.0
+        pass
 
+    @abstractmethod
     def shell_liquid_volume(self, value: float) -> float:
-        return 0.0
+        pass
 
     def liquid_volume(self, value: float) -> float:
         return self.shell_liquid_volume(value) + self.head_liquid_volume(value)
 
+    @abstractmethod
     def head_wetted_area(self, value: float) -> float:
-        return 0.0
+        pass
 
+    @abstractmethod
     def shell_wetted_area(self, value: float) -> float:
-        return 0.0
+        pass
 
     def wetted_area(self, value: float) -> float:
         return self.shell_wetted_area(value) + self.head_wetted_area(value)
@@ -202,5 +244,7 @@ class Vessels:
             return 0.0
         else:
             value = min(value, self._head_distance)
+            if self.head_distance == 0:
+                return 0.0
             r = (value / self.head_distance) * self.diameter / 2
             return pi * r * sqrt(value ** 2 + r ** 2)

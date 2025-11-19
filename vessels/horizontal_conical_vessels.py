@@ -18,6 +18,14 @@ class HorizontalConicalVessels(HorizontalFlatVessels):
     def head_distance(self, value: float):
         self._head_distance = value
 
+    @property
+    def tangent_height(self) -> float:
+        return 0.0
+
+    @property
+    def tangent_volume(self) -> float:
+        return 0.0
+
     def head_liquid_volume(self, value: float) -> float:
         if (value <= 0.0) | (self.head_distance <= 0.0):
             return 0.0
@@ -51,4 +59,3 @@ class HorizontalConicalVessels(HorizontalFlatVessels):
         r = self.diameter / 2
         k = 1 - value / r
         return r * sqrt(r ** 2 + self.head_distance ** 2) * (pi / 2 - asin(k) - k * sqrt(1 - k ** 2))
-
