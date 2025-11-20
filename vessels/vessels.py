@@ -239,6 +239,24 @@ class Vessels(ABC):
     def wetted_area(self, value: float) -> float:
         return self.shell_wetted_area(value) + self.head_wetted_area(value)
 
+    def estimate_empty_weight(self, wall_thickness: float, material_density: float) -> float:
+        """Estimate the total weight of the vessel."""
+        if wall_thickness <= 0 or material_density <= 0:
+            raise ValueError("All parameters must be positive")
+        return self.wetted_area(self.total_height) * wall_thickness * material_density
+
+    def estimate_filled_weight(self, wall_thickness: float, material_density: float, liquid_density: float) -> float:
+        """Estimate the total weight of the vessel with liquid."""
+        if wall_thickness <= 0 or material_density <= 0 or liquid_density <= 0:
+            raise ValueError("All parameters must be positive")
+        return self.wetted_area(self.total_height) * wall_thickness * material_density + self.liquid_volume(self.total_height) * liquid_density
+
+    def surge_time(self, flow_out: float) -> float:
+        """Return the surge time for a given outlet flow rate."""
+        if flow_out <= 0:
+            raise ValueError("Flow out must be positive")
+        return self.working_volume / flow_out
+
     def vertical_cone_surface_area(self, value: float) -> float:
         if (value <= 0.0) | (self.head_distance <= 0.0):
             return 0.0
