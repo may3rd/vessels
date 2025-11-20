@@ -1,6 +1,6 @@
 import React from "react";
 import { VerticalFlatVessel } from "@/lib/vessels/VerticalFlatVessel";
-import { Defs, DimensionArrow, LevelMarker, LEVEL_COLORS } from "./utils";
+import { Defs, DimensionArrow, LevelMarker, LEVEL_COLORS, DIMENSION_COLOR } from "./utils";
 
 interface Props {
     vessel: VerticalFlatVessel;
@@ -88,6 +88,22 @@ export const VerticalFlatVesselDiagram: React.FC<Props> = ({ vessel }) => {
 
             {/* Dimensions */}
             {/* Diameter */}
+            <line
+                x1={-radius}
+                y1={toSvgY(0)}
+                x2={-radius}
+                y2={toSvgY(0) + 0.8}
+                stroke={DIMENSION_COLOR}
+                strokeWidth={0.02}
+            />
+            <line
+                x1={radius}
+                y1={toSvgY(0)}
+                x2={radius}
+                y2={toSvgY(0) + 0.8}
+                stroke={DIMENSION_COLOR}
+                strokeWidth={0.02}
+            />
             <DimensionArrow
                 start={{ x: -radius, y: toSvgY(0) + 0.8 }} // Below bottom
                 end={{ x: radius, y: toSvgY(0) + 0.8 }}
@@ -96,6 +112,22 @@ export const VerticalFlatVesselDiagram: React.FC<Props> = ({ vessel }) => {
             />
 
             {/* Length (Tangent-to-Tangent) */}
+            <line
+                x1={-radius - 1.2}
+                y1={toSvgY(0)}
+                x2={-radius}
+                y2={toSvgY(0)}
+                stroke={DIMENSION_COLOR}
+                strokeWidth={0.02}
+            />
+            <line
+                x1={-radius - 1.2}
+                y1={toSvgY(length)}
+                x2={-radius}
+                y2={toSvgY(length)}
+                stroke={DIMENSION_COLOR}
+                strokeWidth={0.02}
+            />
             <DimensionArrow
                 start={{ x: -radius - 1.2, y: toSvgY(0) }}
                 end={{ x: -radius - 1.2, y: toSvgY(length) }}

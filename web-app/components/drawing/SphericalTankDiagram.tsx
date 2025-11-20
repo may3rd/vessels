@@ -4,6 +4,7 @@ import {
     DimensionArrow,
     LevelMarker,
     Defs,
+    DIMENSION_COLOR,
 } from "./utils";
 
 interface Props {
@@ -15,7 +16,7 @@ export const SphericalTankDiagram: React.FC<Props> = ({ vessel }) => {
     const R = diameter / 2;
 
     const totalHeight = vessel.totalHeight;
-    const paddingX = 1.5;
+    const paddingX = 2.7;
     const paddingY = 1.2;
 
     const minX = -R - paddingX;
@@ -56,6 +57,22 @@ export const SphericalTankDiagram: React.FC<Props> = ({ vessel }) => {
                 Spherical Tanks
             </text>
 
+            <line
+                x1={-R}
+                y1={toSvgY(circleCenterY)}
+                x2={-R}
+                y2={toSvgY(-0.5)}
+                stroke={DIMENSION_COLOR}
+                strokeWidth={0.02}
+            />
+            <line
+                x1={R}
+                y1={toSvgY(circleCenterY)}
+                x2={R}
+                y2={toSvgY(-0.5)}
+                stroke={DIMENSION_COLOR}
+                strokeWidth={0.02}
+            />
             <DimensionArrow
                 start={{ x: -R, y: toSvgY(-0.5) }}
                 end={{ x: R, y: toSvgY(-0.5) }}

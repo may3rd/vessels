@@ -123,6 +123,22 @@ export const HorizontalVesselDiagram: React.FC<Props> = ({ vessel }) => {
                 strokeDasharray="0.2, 0.1"
             />
 
+            <line
+                x1={tangentLeft}
+                y1={toSvgY(-radius)}
+                x2={tangentLeft}
+                y2={toSvgY(-radius - 0.8)}
+                stroke="#004f9f"
+                strokeWidth={0.02}
+            />
+            <line
+                x1={tangentRight}
+                y1={toSvgY(-radius)}
+                x2={tangentRight}
+                y2={toSvgY(-radius - 0.8)}
+                stroke="#004f9f"
+                strokeWidth={0.02}
+            />
             <DimensionArrow
                 start={{ x: (tangentLeft + tangentRight) / 2, y: toSvgY(-radius + 0.2) }}
                 end={{ x: (tangentLeft + tangentRight) / 2, y: toSvgY(radius - 0.2) }}
@@ -136,6 +152,24 @@ export const HorizontalVesselDiagram: React.FC<Props> = ({ vessel }) => {
                 end={{ x: tangentRight, y: toSvgY(-radius - 0.8) }}
                 text={`T-T = ${length.toFixed(2)} m`}
                 textOffset={{ x: 0, y: 0.2 }}
+            />
+            <line
+                x1={tangentLeft}
+                y1={toSvgY(-radius - 0.8)}
+                x2={tangentLeft}
+                y2={toSvgY(radius)}
+                stroke="#004f9f"
+                strokeWidth={0.02}
+                strokeDasharray="0.1,0.1"
+            />
+            <line
+                x1={tangentRight}
+                y1={toSvgY(-radius - 0.8)}
+                x2={tangentRight}
+                y2={toSvgY(radius)}
+                stroke="#004f9f"
+                strokeWidth={0.02}
+                strokeDasharray="0.1,0.1"
             />
 
             <LevelMarker

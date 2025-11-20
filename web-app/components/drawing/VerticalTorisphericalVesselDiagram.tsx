@@ -4,6 +4,7 @@ import {
     DimensionArrow,
     LevelMarker,
     Defs,
+    DIMENSION_COLOR,
 } from "./utils";
 import { torisphericalProfilePoints, pointsToPath } from "./geometry";
 
@@ -136,6 +137,22 @@ export const VerticalTorisphericalVesselDiagram: React.FC<Props> = ({
                 strokeDasharray="0.2, 0.1"
             />
 
+            <line
+                x1={-radius}
+                y1={toSvgY(0)}
+                x2={-radius}
+                y2={toSvgY(0) + 0.8}
+                stroke={DIMENSION_COLOR}
+                strokeWidth={0.02}
+            />
+            <line
+                x1={radius}
+                y1={toSvgY(0)}
+                x2={radius}
+                y2={toSvgY(0) + 0.8}
+                stroke={DIMENSION_COLOR}
+                strokeWidth={0.02}
+            />
             <DimensionArrow
                 start={{ x: -radius, y: toSvgY(0) + 0.8 }}
                 end={{ x: radius, y: toSvgY(0) + 0.8 }}
@@ -143,6 +160,22 @@ export const VerticalTorisphericalVesselDiagram: React.FC<Props> = ({
                 textOffset={{ x: 0, y: 0.2 }}
             />
 
+            <line
+                x1={-radius - 1.2}
+                y1={toSvgY(bottomHeadDistance)}
+                x2={-radius}
+                y2={toSvgY(bottomHeadDistance)}
+                stroke={DIMENSION_COLOR}
+                strokeWidth={0.02}
+            />
+            <line
+                x1={-radius - 1.2}
+                y1={toSvgY(shellTop)}
+                x2={-radius}
+                y2={toSvgY(shellTop)}
+                stroke={DIMENSION_COLOR}
+                strokeWidth={0.02}
+            />
             <DimensionArrow
                 start={{ x: -radius - 1.2, y: toSvgY(bottomHeadDistance) }}
                 end={{ x: -radius - 1.2, y: toSvgY(shellTop) }}
