@@ -16,6 +16,7 @@ export const VerticalTorisphericalVesselDiagram: React.FC<Props> = ({
 }) => {
     const { diameter, length } = vessel;
     const bottomHeadDistance = vessel.bottomHeadHeight;
+    const topHeadDistance = vessel.topHeadHeight;
     const totalHeight = vessel.totalHeight;
     const radius = diameter / 2;
     const shellTop = bottomHeadDistance + length;
@@ -31,21 +32,44 @@ export const VerticalTorisphericalVesselDiagram: React.FC<Props> = ({
     const clampLevel = (value: number) =>
         Math.max(0, Math.min(value, totalHeight));
 
-    const { x: headX, y: headY } = torisphericalProfilePoints(vessel);
+    const bottomProfile =
+        bottomHeadDistance > 0
+            ? torisphericalProfilePoints({
+                diameter,
+                headDistance: bottomHeadDistance,
+                fd: vessel.fd,
+                fk: vessel.fk,
+            })
+            : { x: [] as number[], y: [] as number[] };
+    const topProfile =
+        topHeadDistance > 0
+            ? torisphericalProfilePoints({
+                diameter,
+                headDistance: topHeadDistance,
+                fd: vessel.fd,
+                fk: vessel.fk,
+            })
+            : { x: [] as number[], y: [] as number[] };
 
-    const bottomHeadPoints = headX.map((x, idx) => ({
+    const bottomHeadPoints = bottomProfile.x.map((x, idx) => ({
         x,
-        y: headY[idx] + bottomHeadDistance,
+        y: bottomProfile.y[idx] + bottomHeadDistance,
     }));
-    const topHeadPoints = bottomHeadPoints
-        .map((point) => ({
-            x: point.x,
-            y: totalHeight - point.y,
+    const topHeadPoints = topProfile.x
+        .map((x, idx) => ({
+            x,
+            y: totalHeight - topHeadDistance - topProfile.y[idx],
         }))
         .reverse();
 
-    const bottomHeadPath = pointsToPath(bottomHeadPoints, toSvgY);
-    const topHeadPath = pointsToPath(topHeadPoints, toSvgY);
+    const bottomHeadPath =
+        bottomHeadPoints.length > 0
+            ? pointsToPath(bottomHeadPoints, toSvgY)
+            : `M ${radius} ${toSvgY(0)} L ${-radius} ${toSvgY(0)}`;
+    const topHeadPath =
+        topHeadPoints.length > 0
+            ? pointsToPath(topHeadPoints, toSvgY)
+            : `M ${-radius} ${toSvgY(totalHeight)} L ${radius} ${toSvgY(totalHeight)}`;
 
     const vesselPath = [
         bottomHeadPath,
@@ -120,10 +144,10 @@ export const VerticalTorisphericalVesselDiagram: React.FC<Props> = ({
             />
 
             <DimensionArrow
-                start={{ x: radius + 1.2, y: toSvgY(bottomHeadDistance) }}
-                end={{ x: radius + 1.2, y: toSvgY(shellTop) }}
+                start={{ x: -radius - 1.2, y: toSvgY(bottomHeadDistance) }}
+                end={{ x: -radius - 1.2, y: toSvgY(shellTop) }}
                 text={`T-T = ${length.toFixed(2)} m`}
-                textOffset={{ x: 0.4, y: 0 }}
+                textOffset={{ x: -0.4, y: 0 }}
                 isVertical
             />
 

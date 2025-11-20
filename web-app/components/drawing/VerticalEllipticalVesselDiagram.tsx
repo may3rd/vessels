@@ -31,21 +31,42 @@ export const VerticalEllipticalVesselDiagram: React.FC<Props> = ({
     const clampLevel = (value: number) =>
         Math.max(0, Math.min(value, totalHeight));
 
-    const bottomHeadPoints = ellipseProfilePoints(radius, bottomHeadDistance);
-    const topHeadPoints = bottomHeadPoints
+    const baseBottomProfile =
+        bottomHeadDistance > 0
+            ? ellipseProfilePoints(radius, bottomHeadDistance)
+            : [];
+    const baseTopProfile =
+        topHeadDistance > 0
+            ? ellipseProfilePoints(radius, topHeadDistance)
+            : [];
+
+    const bottomHeadPoints = baseBottomProfile.map((point) => ({
+        x: point.x,
+        y: point.y + bottomHeadDistance,
+    }));
+    const topHeadPoints = baseTopProfile
         .map((point) => ({
             x: point.x,
-            y: totalHeight - point.y,
+            y: totalHeight - topHeadDistance - point.y,
         }))
         .reverse();
 
-    const bottomHeadPath = pointsToPath(bottomHeadPoints, toSvgY);
-    const topHeadPath = pointsToPath(topHeadPoints, toSvgY);
+    const bottomHeadPath =
+        bottomHeadPoints.length > 0
+            ? pointsToPath(bottomHeadPoints, toSvgY)
+            : `M ${radius} ${toSvgY(0)} L ${-radius} ${toSvgY(0)}`;
+
+    const topHeadPath =
+        topHeadPoints.length > 0
+            ? pointsToPath(topHeadPoints, toSvgY)
+            : `M ${-radius} ${toSvgY(totalHeight)} L ${radius} ${toSvgY(totalHeight)}`;
+
+    const topHeadSegment = topHeadPath.replace(/^M/, "L");
 
     const vesselPath = [
         bottomHeadPath,
         `L ${-radius} ${toSvgY(shellTop)}`,
-        topHeadPath.replace(/^M/, "L"),
+        topHeadSegment,
         `L ${radius} ${toSvgY(bottomHeadDistance)}`,
         "Z",
     ].join(" ");
@@ -103,10 +124,10 @@ export const VerticalEllipticalVesselDiagram: React.FC<Props> = ({
                 textOffset={{ x: 0, y: 0.2 }}
             />
             <DimensionArrow
-                start={{ x: radius + 1.2, y: toSvgY(bottomHeadDistance) }}
-                end={{ x: radius + 1.2, y: toSvgY(shellTop) }}
+                start={{ x: -radius - 1.2, y: toSvgY(bottomHeadDistance) }}
+                end={{ x: -radius - 1.2, y: toSvgY(shellTop) }}
                 text={`T-T = ${length.toFixed(2)} m`}
-                textOffset={{ x: 0.4, y: 0 }}
+                textOffset={{ x: -0.4, y: 0 }}
                 isVertical
             />
 

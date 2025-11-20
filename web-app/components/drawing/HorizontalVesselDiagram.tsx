@@ -9,6 +9,12 @@ import {
     LevelMarker,
     Defs,
 } from "./utils";
+import {
+    ellipseProfilePoints,
+    torisphericalProfilePoints,
+    conicalProfilePoints,
+    Point,
+} from "./geometry";
 
 interface Props {
     vessel:
@@ -20,71 +26,59 @@ interface Props {
 }
 
 export const HorizontalVesselDiagram: React.FC<Props> = ({ vessel }) => {
-    const { diameter, length, headDistance } = vessel;
+    const { diameter, length } = vessel;
+    const radius = diameter / 2;
+    const tangentLeft = -length / 2;
+    const tangentRight = length / 2;
+    const headDepth = Math.max(0, vessel.headDistance ?? 0);
 
-    // For horizontal vessels, headDistance is the length of the head.
-    // We draw the vessel horizontally.
-    // Center of vessel at (0, 0).
-    // Shell from x = -length/2 to x = length/2.
-    // Left head from x = -length/2 - headDistance to -length/2.
-    // Right head from x = length/2 to length/2 + headDistance.
+    const leftTip = tangentLeft - headDepth;
+    const rightTip = tangentRight + headDepth;
 
-    const R = diameter / 2;
-    const L = length;
-    const H = headDistance;
+    const paddingX = 2.8;
+    const paddingY = 1.2;
 
-    const viewBoxX = -L / 2 - H - 1.0;
-    const viewBoxY = -R - 1.5;
-    const viewBoxWidth = L + 2 * H + 2.0;
-    const viewBoxHeight = diameter + 3.0;
+    const minX = leftTip - paddingX;
+    const minY = -radius - paddingY;
+    const viewWidth = rightTip - leftTip + 2 * paddingX;
+    const viewHeight = 2 * radius + 2 * paddingY;
 
-    // Generate paths based on vessel type
-    let leftHeadPath = "";
-    let rightHeadPath = "";
+    const toSvgY = (value: number) => -value;
+    const clampLevel = (value: number) =>
+        Math.max(0, Math.min(value, diameter));
+    const levelLineY = (value: number) =>
+        toSvgY(-radius + clampLevel(value));
 
-    if (vessel instanceof HorizontalFlatVessel) {
-        leftHeadPath = `M ${-L / 2} ${-R} L ${-L / 2} ${R}`;
-        rightHeadPath = `M ${L / 2} ${-R} L ${L / 2} ${R}`;
-    } else if (vessel instanceof HorizontalConicalVessel) {
-        leftHeadPath = `M ${-L / 2} ${-R} L ${-L / 2 - H} 0 L ${-L / 2} ${R}`;
-        rightHeadPath = `M ${L / 2} ${-R} L ${L / 2 + H} 0 L ${L / 2} ${R}`;
-    } else if (vessel instanceof HorizontalHemisphericalVessel || vessel instanceof HorizontalEllipticalVessel) {
-        // Elliptical/Hemispherical arc
-        // A rx ry x-axis-rotation large-arc-flag sweep-flag x y
-        leftHeadPath = `M ${-L / 2} ${R} A ${H} ${R} 0 0 0 ${-L / 2} ${-R}`;
-        rightHeadPath = `M ${L / 2} ${-R} A ${H} ${R} 0 0 0 ${L / 2} ${R}`;
-    } else if (vessel instanceof HorizontalTorisphericalVessel) {
-        // Approximate torispherical as elliptical for drawing simplicity, 
-        // or we could generate points like in vertical.
-        // Given the complexity and visual similarity at small scales, elliptical arc is a reasonable approximation for the diagram.
-        // Or we can use a slightly flattened ellipse.
-        leftHeadPath = `M ${-L / 2} ${R} A ${H} ${R} 0 0 0 ${-L / 2} ${-R}`;
-        rightHeadPath = `M ${L / 2} ${-R} A ${H} ${R} 0 0 0 ${L / 2} ${R}`;
-    }
+    const baseProfile = getBaseHeadProfile(vessel, radius, headDepth);
+    const leftHeadOutline = mapHeadProfile(
+        baseProfile,
+        true,
+        tangentLeft,
+        tangentRight,
+        radius
+    );
+    const rightHeadOutline = mapHeadProfile(
+        baseProfile,
+        false,
+        tangentLeft,
+        tangentRight,
+        radius
+    );
 
-    const vesselPath = `
-    ${leftHeadPath}
-    L ${L / 2} ${-R}
-    ${rightHeadPath.replace("M", "L")}
-    L ${-L / 2} ${R}
-    Z
-  `;
-
-    // Liquid Level
-    // In side view, liquid level is a horizontal line at y = liquidLevel - R.
-    // We clip the vessel path with a rectangle from bottom to liquid level.
-    const liquidY = vessel.liquidLevel - R;
-
-    // Clip rect for liquid
-    // x: -infinity to infinity (or large enough)
-    // y: -R to liquidY
+    const vesselPath = buildOutlinePath(
+        leftHeadOutline,
+        rightHeadOutline,
+        tangentLeft,
+        tangentRight,
+        radius,
+        toSvgY
+    );
 
     return (
         <svg
-            viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}`}
-            className="w-full h-full"
-            transform="scale(1, -1)"
-            style={{ overflow: "visible" }}
+            viewBox={`${minX} ${minY} ${viewWidth} ${viewHeight}`}
+            style={{ width: "100%", height: "100%", maxHeight: "80vh" }}
+            preserveAspectRatio="xMidYMid meet"
         >
             <Defs />
             <defs>
@@ -93,18 +87,16 @@ export const HorizontalVesselDiagram: React.FC<Props> = ({ vessel }) => {
                 </clipPath>
             </defs>
 
-            {/* Liquid Fill */}
             <rect
-                x={-L / 2 - H - 1}
-                y={-R}
-                width={L + 2 * H + 2}
-                height={Math.max(0, vessel.liquidLevel)}
+                x={leftTip}
+                y={levelLineY(vessel.liquidLevel)}
+                width={rightTip - leftTip}
+                height={clampLevel(vessel.liquidLevel)}
                 fill="lightblue"
                 fillOpacity={0.5}
                 clipPath="url(#hVesselClip)"
             />
 
-            {/* Vessel Outline */}
             <path
                 d={vesselPath}
                 fill="none"
@@ -112,71 +104,155 @@ export const HorizontalVesselDiagram: React.FC<Props> = ({ vessel }) => {
                 strokeWidth={0.05}
             />
 
-            {/* Tangent Lines */}
             <line
-                x1={-L / 2}
-                y1={-R - 0.5}
-                x2={-L / 2}
-                y2={R + 0.5}
+                x1={tangentLeft}
+                y1={toSvgY(radius + 0.5)}
+                x2={tangentLeft}
+                y2={toSvgY(-radius - 0.5)}
                 stroke="black"
                 strokeWidth={0.02}
                 strokeDasharray="0.2, 0.1"
             />
             <line
-                x1={L / 2}
-                y1={-R - 0.5}
-                x2={L / 2}
-                y2={R + 0.5}
+                x1={tangentRight}
+                y1={toSvgY(radius + 0.5)}
+                x2={tangentRight}
+                y2={toSvgY(-radius - 0.5)}
                 stroke="black"
                 strokeWidth={0.02}
                 strokeDasharray="0.2, 0.1"
             />
 
-            <g transform="scale(1, -1)">
-                {/* Diameter Dimension */}
-                <DimensionArrow
-                    start={{ x: L / 2 + H + 0.5, y: -R }}
-                    end={{ x: L / 2 + H + 0.5, y: R }}
-                    text={`D = ${diameter.toFixed(2)} m`}
-                    textOffset={{ x: 0.2, y: 0 }}
-                    isVertical
-                />
+            <DimensionArrow
+                start={{ x: (tangentLeft + tangentRight) / 2, y: toSvgY(-radius + 0.2) }}
+                end={{ x: (tangentLeft + tangentRight) / 2, y: toSvgY(radius - 0.2) }}
+                text={`D = ${diameter.toFixed(2)} m`}
+                textOffset={{ x: 0, y: 0 }}
+                isVertical
+            />
 
-                {/* Length Dimension */}
-                <DimensionArrow
-                    start={{ x: -L / 2, y: -R - 0.8 }}
-                    end={{ x: L / 2, y: -R - 0.8 }}
-                    text={`T-T = ${length.toFixed(2)} m`}
-                    textOffset={{ x: 0, y: 0.2 }}
-                />
-            </g>
+            <DimensionArrow
+                start={{ x: tangentLeft, y: toSvgY(-radius - 0.8) }}
+                end={{ x: tangentRight, y: toSvgY(-radius - 0.8) }}
+                text={`T-T = ${length.toFixed(2)} m`}
+                textOffset={{ x: 0, y: 0.2 }}
+            />
 
-            <g transform="scale(1, -1)">
-                <LevelMarker
-                    y={-(vessel.highLiquidLevel - R)}
-                    label="HLL"
-                    value={vessel.highLiquidLevel}
-                    color="green"
-                    xMin={-L / 2 - H}
-                    xMax={L / 2 + H}
-                />
-                <LevelMarker
-                    y={-(vessel.lowLiquidLevel - R)}
-                    label="LLL"
-                    value={vessel.lowLiquidLevel}
-                    color="red"
-                    xMin={-L / 2 - H}
-                    xMax={L / 2 + H}
-                />
-                <LevelMarker
-                    y={-(vessel.liquidLevel - R)}
-                    label="LL"
-                    value={vessel.liquidLevel}
-                    color="blue"
-                    xMin={-L / 2 - H}
-                    xMax={L / 2 + H}
-                />
-            </g>
+            <LevelMarker
+                y={levelLineY(vessel.highLiquidLevel)}
+                label="HLL"
+                value={vessel.highLiquidLevel}
+                color="green"
+                xMin={leftTip}
+                xMax={rightTip}
+            />
+            <LevelMarker
+                y={levelLineY(vessel.lowLiquidLevel)}
+                label="LLL"
+                value={vessel.lowLiquidLevel}
+                color="red"
+                xMin={leftTip}
+                xMax={rightTip}
+            />
+            <LevelMarker
+                y={levelLineY(vessel.liquidLevel)}
+                label="LL"
+                value={vessel.liquidLevel}
+                color="blue"
+                xMin={leftTip}
+                xMax={rightTip}
+            />
         </svg>
     );
 };
+
+function getBaseHeadProfile(
+    vessel: Props["vessel"],
+    radius: number,
+    headDepth: number
+): Point[] {
+    if (headDepth <= 0) return [];
+
+    if (vessel instanceof HorizontalTorisphericalVessel) {
+        const profile = torisphericalProfilePoints({
+            diameter: vessel.diameter,
+            headDistance: headDepth,
+            fd: vessel.fd,
+            fk: vessel.fk,
+        });
+        return profile.x.map((xVal, idx) => ({
+            x: xVal,
+            y: profile.y[idx],
+        }));
+    }
+
+    if (
+        vessel instanceof HorizontalEllipticalVessel ||
+        vessel instanceof HorizontalHemisphericalVessel
+    ) {
+        return ellipseProfilePoints(radius, headDepth);
+    }
+
+    if (vessel instanceof HorizontalConicalVessel) {
+        return conicalProfilePoints(radius, headDepth);
+    }
+
+    return [];
+}
+
+function mapHeadProfile(
+    profile: Point[],
+    isLeft: boolean,
+    tangentLeft: number,
+    tangentRight: number,
+    radius: number
+): Point[] {
+    if (!profile.length) {
+        return isLeft
+            ? [
+                { x: tangentLeft, y: radius },
+                { x: tangentLeft, y: -radius },
+            ]
+            : [
+                { x: tangentRight, y: -radius },
+                { x: tangentRight, y: radius },
+            ];
+    }
+
+    const mapped = profile.map((point) => ({
+        x: isLeft ? tangentLeft + point.y : tangentRight - point.y,
+        y: point.x,
+    }));
+
+    return isLeft ? mapped : mapped.reverse();
+}
+
+function buildOutlinePath(
+    leftHead: Point[],
+    rightHead: Point[],
+    tangentLeft: number,
+    tangentRight: number,
+    radius: number,
+    toSvgY: (value: number) => number
+): string {
+    const points: string[] = [];
+
+    const start = leftHead[0] ?? { x: tangentLeft, y: radius };
+    points.push(`M ${start.x} ${toSvgY(start.y)}`);
+
+    leftHead.slice(1).forEach((point) => {
+        points.push(`L ${point.x} ${toSvgY(point.y)}`);
+    });
+
+    points.push(`L ${tangentRight} ${toSvgY(-radius)}`);
+
+    rightHead.forEach((point, idx) => {
+        if (idx === 0) return;
+        points.push(`L ${point.x} ${toSvgY(point.y)}`);
+    });
+
+    points.push(`L ${tangentLeft} ${toSvgY(radius)}`);
+    points.push("Z");
+
+    return points.join(" ");
+}

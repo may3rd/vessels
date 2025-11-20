@@ -97,10 +97,10 @@ export const VerticalFlatVesselDiagram: React.FC<Props> = ({ vessel }) => {
 
             {/* Length (Tangent-to-Tangent) */}
             <DimensionArrow
-                start={{ x: radius + 1.2, y: toSvgY(0) }}
-                end={{ x: radius + 1.2, y: toSvgY(length) }}
+                start={{ x: -radius - 1.2, y: toSvgY(0) }}
+                end={{ x: -radius - 1.2, y: toSvgY(length) }}
                 text={`T-T = ${length.toFixed(2)} m`}
-                textOffset={{ x: 0.4, y: 0 }}
+                textOffset={{ x: -0.4, y: 0 }}
                 isVertical
             />
 

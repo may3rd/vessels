@@ -6,7 +6,7 @@ export class SphericalTank extends Vessel {
     constructor(diameter: number = 3) {
         super();
         this.diameter = diameter;
-        this.length = 0; // Length is not relevant for a sphere
+        this.length = diameter; // ensure base class validations succeed
     }
 
     get headDistance(): number {

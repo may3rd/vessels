@@ -1,8 +1,13 @@
-import { VerticalTorisphericalVessel } from "@/lib/vessels/VerticalTorisphericalVessel";
-
 export interface Point {
     x: number;
     y: number;
+}
+
+export interface TorisphericalProfileInput {
+    diameter: number;
+    headDistance: number;
+    fd: number;
+    fk: number;
 }
 
 export function pointsToPath(
@@ -23,18 +28,25 @@ export function ellipseProfilePoints(
     height: number,
     steps: number = 60
 ): Point[] {
-    if (radius <= 0 || height <= 0 || steps < 2) {
-        return [];
-    }
+    if (radius <= 0 || height <= 0 || steps < 2) return [];
 
     const points: Point[] = [];
     for (let i = 0; i < steps; i++) {
-        const theta = (i / (steps - 1)) * Math.PI; // 0..pi
+        const theta = (i / (steps - 1)) * Math.PI;
         const x = radius * Math.cos(theta);
-        const y = height - height * Math.sin(theta);
+        const y = -height * Math.sin(theta);
         points.push({ x, y });
     }
     return points;
+}
+
+export function conicalProfilePoints(radius: number, height: number): Point[] {
+    if (radius <= 0 || height <= 0) return [];
+    return [
+        { x: radius, y: 0 },
+        { x: 0, y: -height },
+        { x: -radius, y: 0 },
+    ];
 }
 
 export function toRad(deg: number): number {
@@ -116,14 +128,14 @@ export function circleIntersection(
 }
 
 export function torisphericalProfilePoints(
-    vessel: VerticalTorisphericalVessel,
+    source: TorisphericalProfileInput,
     stepsKnuckle: number = 30,
     stepsDish: number = 60
 ): { x: number[]; y: number[] } {
-    const d = vessel.diameter;
-    const headDepth = vessel.headDistance;
-    const dishRadius = vessel.fd * d;
-    const knuckleRadius = vessel.fk * d;
+    const d = source.diameter;
+    const headDepth = source.headDistance;
+    const dishRadius = source.fd * d;
+    const knuckleRadius = source.fk * d;
 
     if (Math.min(d, headDepth, dishRadius, knuckleRadius) <= 0) {
         return { x: [], y: [] };
