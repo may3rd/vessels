@@ -3,14 +3,14 @@
 Utilities for sizing, evaluating, and visualizing common process vessels.  
 The repository contains:
 
-- A Python library (`vessels/`) with shape-specific subclasses that compute volumes, wetted areas, surge time, and more.
+- A Python library (`src/models/`) with shape-specific subclasses that compute volumes, wetted areas, surge time, and more.
 - An interactive CLI (`main.py`) that guides you through configuring a vessel and can export SVG drawings.
 - A Next.js front-end (`web-app/`) that reuses the same design rules for a browser-based experience.
 
 ## Repository Layout
 
 ```
-vessels/            Core Python package with vessel definitions and drawing helpers
+src/models/         Core Python package with vessel definitions and drawing helpers
 main.py             Interactive CLI entry point
 tests/              Pytest coverage for core calculations
 web-app/            Next.js UI that wraps the Python logic via an API layer
@@ -23,12 +23,18 @@ web-app/            Next.js UI that wraps the Python logic via an API layer
 - Python 3.10+ (project developed and tested on 3.12)
 - `pip` and `virtualenv` (recommended)
 
-Install the dependencies:
+Install the dependencies with the editable `src/` layout enabled:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -e .
+```
+
+Include the optional test dependencies when you plan to run `pytest`:
+
+```bash
+pip install -e .[test]
 ```
 
 ### Using the CLI
@@ -50,10 +56,8 @@ When drawing is enabled the SVG output is saved to the provided path (default `v
 
 ```bash
 source .venv/bin/activate
-PYTHONPATH=. pytest
+pytest
 ```
-
-`PYTHONPATH=.` ensures the test suite imports the local `vessels` package.
 
 ## Web Application
 
@@ -72,7 +76,7 @@ Visit `http://localhost:3000` to interact with the UI.
 ## Contributing
 
 1. Make sure new Python code includes tests (`tests/`).
-2. Run `PYTHONPATH=. pytest` and, when relevant, `npm test` inside `web-app/`.
+2. Run `pytest` (and, when relevant, `npm test` inside `web-app/`).
 3. Keep SVG outputs and README examples up-to-date when you add new vessel capabilities.
 
 ## License

@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vessels-toolkit"
+version = "0.1.0"
+description = "Utilities for sizing, evaluating, and visualizing common process vessels."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE.txt" }
+authors = [{ name = "Vessels Toolkit Maintainers" }]
+dependencies = [
+    "numpy==2.3.5",
+    "scipy==1.16.3",
+    "matplotlib==3.10.7",
+]
+
+[project.optional-dependencies]
+test = ["pytest==9.0.1"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

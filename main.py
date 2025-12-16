@@ -1,25 +1,31 @@
 import argparse
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 
-from vessels.vertical_flat_vessels import VerticalFlatVessels
-from vessels.vertical_torispherical_vessels import VerticalToriSphericalVessels
-from vessels.vertical_elliptical_vessels import VerticalEllipticalVessels
-from vessels.vertical_hemispherical_vessels import VerticalHemiSphericalVessels
-from vessels.vertical_conical_vessels import VerticalConicalVessels
-from vessels.vertical_flat_tanks import VerticalFlatTanks
-from vessels.vertical_torispherical_tanks import VerticalToriSphericalTanks
-from vessels.vertical_elliptical_tanks import VerticalEllipticalTanks
-from vessels.vertical_hemispherical_tanks import VerticalHemiSphericalTanks
-from vessels.vertical_conical_tanks import VerticalConicalTanks
-from vessels.horizontal_flat_vessels import HorizontalFlatVessels
-from vessels.horizontal_torishperical_vessels import HorizontalToriSphericalVessels
-from vessels.horizontal_elliptical_vessels import HorizontalEllipticalVessels
-from vessels.horizontal_hemispherical_vessels import HorizontalHemiSphericalVessels
-from vessels.horizontal_conical_vessels import HorizontalConicalVessels
-from vessels.spherical_tanks import SphericalTanks
-from vessels.vessels import Vessels
+PROJECT_ROOT = Path(__file__).resolve().parent
+SRC_PATH = PROJECT_ROOT / "src"
+if str(SRC_PATH) not in sys.path:
+    sys.path.insert(0, str(SRC_PATH))
+
+from src.models.vertical_flat_vessels import VerticalFlatVessels
+from src.models.vertical_torispherical_vessels import VerticalToriSphericalVessels
+from src.models.vertical_elliptical_vessels import VerticalEllipticalVessels
+from src.models.vertical_hemispherical_vessels import VerticalHemiSphericalVessels
+from src.models.vertical_conical_vessels import VerticalConicalVessels
+from src.models.vertical_flat_tanks import VerticalFlatTanks
+from src.models.vertical_torispherical_tanks import VerticalToriSphericalTanks
+from src.models.vertical_elliptical_tanks import VerticalEllipticalTanks
+from src.models.vertical_hemispherical_tanks import VerticalHemiSphericalTanks
+from src.models.vertical_conical_tanks import VerticalConicalTanks
+from src.models.horizontal_flat_vessels import HorizontalFlatVessels
+from src.models.horizontal_torishperical_vessels import HorizontalToriSphericalVessels
+from src.models.horizontal_elliptical_vessels import HorizontalEllipticalVessels
+from src.models.horizontal_hemispherical_vessels import HorizontalHemiSphericalVessels
+from src.models.horizontal_conical_vessels import HorizontalConicalVessels
+from src.models.spherical_tanks import SphericalTanks
+from src.models.vessels import Vessels
 
 DEFAULT_OUTPUT = "vessel.svg"
 

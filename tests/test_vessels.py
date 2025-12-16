@@ -1,6 +1,6 @@
 import pytest
 from math import pi
-from vessels.vertical_flat_vessels import VerticalFlatVessels
+from models.vertical_flat_vessels import VerticalFlatVessels
 
 def test_vertical_flat_vessel_creation():
     """Tests the creation of a VerticalFlatVessels object."""

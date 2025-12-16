@@ -1,6 +1,6 @@
 from .horizontal_torishperical_vessels import HorizontalToriSphericalVessels
 from .vertical_elliptical_vessels import elliptical_head_volume
-from constants import FD_ELLIP, FK_ELLIP
+from .constants import FD_ELLIP, FK_ELLIP
 
 class HorizontalEllipticalVessels(HorizontalToriSphericalVessels):
     vessels_type = 'Horizontal Elliptical Vessels'

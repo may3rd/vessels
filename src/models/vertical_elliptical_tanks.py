@@ -1,5 +1,5 @@
 from .vertical_elliptical_vessels import VerticalEllipticalVessels
-from constants import FD_ELLIP, FK_ELLIP, pi
+from .constants import FD_ELLIP, FK_ELLIP, pi
 
 class VerticalEllipticalTanks(VerticalEllipticalVessels):
     vessels_type = 'Vertical Elliptical Tanks'

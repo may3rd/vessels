@@ -1,6 +1,6 @@
 from .horizontal_flat_vessels import HorizontalFlatVessels
 from .vertical_torispherical_vessels import VerticalToriSphericalVessels
-from constants import FD_TORI, FK_TORI
+from .constants import FD_TORI, FK_TORI
 import scipy.integrate as integrate
 
 

@@ -1,6 +1,6 @@
 from .vertical_flat_vessels import VerticalFlatVessels
 from math import sqrt, acos, asin
-from constants import FD_TORI, FK_TORI, pi
+from .constants import FD_TORI, FK_TORI, pi
 import scipy.integrate as integrate
 
 class VerticalToriSphericalVessels(VerticalFlatVessels):

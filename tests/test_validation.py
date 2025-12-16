@@ -1,5 +1,5 @@
 import pytest
-from vessels.vertical_flat_vessels import VerticalFlatVessels
+from models.vertical_flat_vessels import VerticalFlatVessels
 
 def test_negative_diameter_raises_error():
     """Tests that setting a negative diameter raises a ValueError."""

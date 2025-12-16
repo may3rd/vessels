@@ -1,5 +1,5 @@
 from .vertical_torispherical_vessels import VerticalToriSphericalVessels
-from constants import FD_TORI, FK_TORI, pi
+from .constants import FD_TORI, FK_TORI, pi
 
 class VerticalToriSphericalTanks(VerticalToriSphericalVessels):
     vessels_type = 'Vertical ToriSpherical Tanks'
