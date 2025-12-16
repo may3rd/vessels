@@ -21,9 +21,7 @@ from vessels.horizontal_conical_vessels import HorizontalConicalVessels
 from vessels.spherical_tanks import SphericalTanks
 from vessels.vessels import Vessels
 
-
 DEFAULT_OUTPUT = "vessel.svg"
-
 
 @dataclass(frozen=True)
 class VesselOption:
@@ -122,7 +120,6 @@ VESSEL_OPTIONS: List[VesselOption] = [
 ]
 
 VESSEL_OPTION_MAP: Dict[str, VesselOption] = {opt.key: opt for opt in VESSEL_OPTIONS}
-
 
 def _prompt_float(prompt_text: str, default: Optional[float], min_value: Optional[float] = None,
                   max_value: Optional[float] = None) -> float:
